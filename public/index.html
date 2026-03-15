@@ -76,64 +76,66 @@
             </div>
             
             <!-- Tab Content -->
-            <div class="flex-1 overflow-hidden">
-                <!-- Editor Tab -->
-                <div id="editorTab" class="p-4">
-                    <div class="grid grid-cols-2 gap-4 h-full">
-                        <div class="bg-gray-700 rounded p-4">
-                            <label class="block text-sm font-medium mb-2">URL</label>
-                            <input type="text" id="editorUrl" placeholder="https://api.example.com/endpoint" 
-                                   class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+            <div class="flex-1 overflow-hidden flex flex-col">
+                <!-- Editor Tabs -->
+                <div class="flex-1 overflow-y-auto">
+                    <!-- Editor Tab -->
+                    <div id="editorTab" class="p-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-gray-700 rounded p-4">
+                                <label class="block text-sm font-medium mb-2">URL</label>
+                                <input type="text" id="editorUrl" placeholder="https://api.example.com/endpoint"
+                                       class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                            </div>
+                            <div class="bg-gray-700 rounded p-4">
+                                <label class="block text-sm font-medium mb-2">Method</label>
+                                <select id="editorMethod" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                    <option value="GET">GET</option>
+                                    <option value="POST">POST</option>
+                                    <option value="PUT">PUT</option>
+                                    <option value="DELETE">DELETE</option>
+                                    <option value="PATCH">PATCH</option>
+                                    <option value="HEAD">HEAD</option>
+                                    <option value="OPTIONS">OPTIONS</option>
+                                </select>
+                            </div>
                         </div>
+                    </div>
+                    
+                    <!-- Headers Tab -->
+                    <div id="headersTab" class="p-4 hidden">
                         <div class="bg-gray-700 rounded p-4">
-                            <label class="block text-sm font-medium mb-2">Method</label>
-                            <select id="editorMethod" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
-                                <option value="GET">GET</option>
-                                <option value="POST">POST</option>
-                                <option value="PUT">PUT</option>
-                                <option value="DELETE">DELETE</option>
-                                <option value="PATCH">PATCH</option>
-                                <option value="HEAD">HEAD</option>
-                                <option value="OPTIONS">OPTIONS</option>
-                            </select>
+                            <label class="block text-sm font-medium mb-2">Headers (JSON format)</label>
+                            <textarea id="headersInput" placeholder='{"Content-Type": "application/json"}'
+                                      class="w-full h-48 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Body Tab -->
+                    <div id="bodyTab" class="p-4 hidden">
+                        <div class="bg-gray-700 rounded p-4">
+                            <label class="block text-sm font-medium mb-2">Body</label>
+                            <textarea id="bodyInput" placeholder='{"key": "value"}'
+                                      class="w-full h-48 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Headers Tab -->
-                <div id="headersTab" class="p-4 hidden">
-                    <div class="bg-gray-700 rounded p-4 h-full">
-                        <label class="block text-sm font-medium mb-2">Headers (JSON format)</label>
-                        <textarea id="headersInput" placeholder='{"Content-Type": "application/json"}' 
-                                  class="w-full h-64 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
+                <!-- Response Panel -->
+                <div class="bg-gray-800 border-t border-gray-700 flex" id="responsePanel">
+                    <div class="border-r border-gray-700 p-4" style="width: 300px;">
+                        <h3 class="font-medium mb-2">Response</h3>
+                        <div id="responseStatus" class="text-sm mb-2"></div>
+                        <pre id="responseData" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-green-400" style="height: 200px;"></pre>
+                    </div>
+                    <div class="p-4" style="flex: 1;">
+                        <h3 class="font-medium mb-2">Console</h3>
+                        <div id="responseConsole" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-gray-400" style="height: 200px;"></div>
                     </div>
                 </div>
                 
-                <!-- Body Tab -->
-                <div id="bodyTab" class="p-4 hidden">
-                    <div class="bg-gray-700 rounded p-4 h-full">
-                        <label class="block text-sm font-medium mb-2">Body</label>
-                        <textarea id="bodyInput" placeholder='{"key": "value"}' 
-                                  class="w-full h-64 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Response Panel -->
-            <div class="bg-gray-800 border-t border-gray-700 flex" id="responsePanel">
-                <div class="border-r border-gray-700 p-4" style="width: 300px;">
-                    <h3 class="font-medium mb-2">Response</h3>
-                    <div id="responseStatus" class="text-sm mb-2"></div>
-                    <pre id="responseData" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-green-400" style="height: calc(100vh - 280px);"></pre>
-                </div>
-                <div class="p-4" style="flex: 1;">
-                    <h3 class="font-medium mb-2">Console</h3>
-                    <div id="responseConsole" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-gray-400" style="height: calc(100vh - 280px);"></div>
-                </div>
-            </div>
-            
-            <!-- Resize Handle -->
-            <div class="h-2 cursor-col-resize bg-gray-700 hover:bg-gray-600" id="resizeHandle"></div>
+                <!-- Resize Handle -->
+                <div class="h-2 cursor-col-resize bg-gray-700 hover:bg-gray-600" id="resizeHandle"></div>
         </main>
     </div>
     
