@@ -82,7 +82,10 @@ function selectRequest(id) {
 async function loadRequestDetails(id) {
     try {
         const response = await fetch(`/api/requests?id=${id}`);
-        const request = await response.json();
+        const data = await response.json();
+        
+        // API returns array, get first element
+        const request = Array.isArray(data) ? data[0] : data;
         
         if (request) {
             document.getElementById('methodSelect').value = request.method;
