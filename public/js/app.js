@@ -400,3 +400,46 @@ function formatDate(dateStr) {
     const date = new Date(dateStr);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
+
+// Initialize resize handle
+document.addEventListener('DOMContentLoaded', () => {
+    loadRequests();
+    setupEventListeners();
+    setupResizeHandle();
+});
+
+function setupResizeHandle() {
+    const resizeHandle = document.getElementById('resizeHandle');
+    const responsePanel = document.getElementById('responsePanel');
+    const responseData = document.getElementById('responseData');
+    const responseConsole = document.getElementById('responseConsole');
+    
+    if (!resizeHandle || !responsePanel || !responseData || !responseConsole) return;
+    
+    let isResizing = false;
+    
+    resizeHandle.addEventListener('mousedown', (e) => {
+        isResizing = true;
+        document.body.style.cursor = 'col-resize';
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizing) return;
+        
+        const rect = responsePanel.getBoundingClientRect();
+        const newWidth = e.clientX - rect.left;
+        
+        if (newWidth > 150 && newWidth < window.innerWidth - 100) {
+            responsePanel.style.width = `${newWidth}px`;
+            responseData.style.width = `${newWidth - 24}px`;
+        }
+    });
+    
+    document.addEventListener('mouseup', () => {
+        if (isResizing) {
+            isResizing = false;
+            document.body.style.cursor = '';
+        }
+    });
+}
