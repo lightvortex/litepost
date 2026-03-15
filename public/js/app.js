@@ -18,30 +18,68 @@ const resizeState = {
 document.addEventListener('DOMContentLoaded', () => {
     loadRequests();
     setupEventListeners();
+    setupMainTabListeners();
+    setupSubTabListeners();
     setupResizeHandles();
     setupCollapseExpand();
     setupSmoothTransitions();
+    showMainTab('requests'); // Show Requests tab by default
 });
 
 // Setup event listeners
 function setupEventListeners() {
-    // Sync URL input
-    document.getElementById('urlInput').addEventListener('input', (e) => {
-        document.getElementById('editorUrl').value = e.target.value;
+    // URL input listener - sync when user types
+    const urlInput = document.getElementById('editorUrl');
+    if (urlInput) {
+        urlInput.addEventListener('input', (e) => {
+            urlInput.value = e.target.value;
+        });
+    }
+
+    // Method select listener - sync when user changes
+    const methodSelect = document.getElementById('editorMethod');
+    if (methodSelect) {
+        methodSelect.addEventListener('change', (e) => {
+            methodSelect.value = e.target.value;
+        });
+    }
+}
+
+// Setup main tab event listeners
+function setupMainTabListeners() {
+    // Requests tab
+    document.getElementById('mainTabRequests').addEventListener('click', () => {
+        showMainTab('requests');
+        showSubTab('editor'); // Default to editor sub-tab
     });
     
-    // Sync method select
-    document.getElementById('methodSelect').addEventListener('change', (e) => {
-        document.getElementById('editorMethod').value = e.target.value;
+    // Runner tab
+    document.getElementById('mainTabRunner').addEventListener('click', () => {
+        showMainTab('runner');
+        showRunnerTab();
     });
     
-    // Sync editor fields to header
-    document.getElementById('editorUrl').addEventListener('input', (e) => {
-        document.getElementById('urlInput').value = e.target.value;
+    // Settings tab
+    document.getElementById('mainTabSettings').addEventListener('click', () => {
+        showMainTab('settings');
+    });
+}
+
+// Setup sub-tab event listeners (within Requests tab)
+function setupSubTabListeners() {
+    // Editor sub-tab
+    document.getElementById('subTabEditor').addEventListener('click', () => {
+        showSubTab('editor');
     });
     
-    document.getElementById('editorMethod').addEventListener('change', (e) => {
-        document.getElementById('methodSelect').value = e.target.value;
+    // Headers sub-tab
+    document.getElementById('subTabHeaders').addEventListener('click', () => {
+        showSubTab('headers');
+    });
+    
+    // Body sub-tab
+    document.getElementById('subTabBody').addEventListener('click', () => {
+        showSubTab('body');
     });
 }
 
@@ -106,9 +144,7 @@ async function loadRequestDetails(id) {
         const request = Array.isArray(data) ? data[0] : data;
         
         if (request) {
-            document.getElementById('methodSelect').value = request.method;
             document.getElementById('editorMethod').value = request.method;
-            document.getElementById('urlInput').value = request.url;
             document.getElementById('editorUrl').value = request.url;
             document.getElementById('headersInput').value = request.headers || '';
             document.getElementById('bodyInput').value = request.body || '';
@@ -126,8 +162,8 @@ function createRequest() {
         return;
     }
     
-    const method = document.getElementById('methodSelect').value;
-    const url = document.getElementById('urlInput').value.trim();
+    const method = document.getElementById('editorMethod').value;
+    const url = document.getElementById('editorUrl').value.trim();
     
     if (!url) {
         alert('Please enter a URL');
@@ -142,6 +178,7 @@ function createRequest() {
     .then(res => res.json())
     .then(data => {
         document.getElementById('requestName').value = '';
+        document.getElementById('editorUrl').value = '';
         loadRequests();
         selectRequest(data.id);
     })
@@ -156,8 +193,8 @@ function updateRequest() {
     if (!currentRequestId) return;
     
     const name = document.getElementById('requestName').value.trim();
-    const method = document.getElementById('methodSelect').value;
-    const url = document.getElementById('urlInput').value.trim();
+    const method = document.getElementById('editorMethod').value;
+    const url = document.getElementById('editorUrl').value.trim();
     const headers = document.getElementById('headersInput').value;
     const body = document.getElementById('bodyInput').value;
     
@@ -186,9 +223,7 @@ function deleteRequest(id) {
         loadRequests();
         if (currentRequestId === id) {
             currentRequestId = null;
-            document.getElementById('urlInput').value = '';
             document.getElementById('editorUrl').value = '';
-            document.getElementById('methodSelect').value = 'GET';
             document.getElementById('editorMethod').value = 'GET';
             document.getElementById('headersInput').value = '';
             document.getElementById('bodyInput').value = '';
@@ -200,21 +235,46 @@ function deleteRequest(id) {
     });
 }
 
-// Show tab
-function showTab(tabName) {
-    // Hide all tabs
-    ['editor', 'headers', 'body'].forEach(t => {
-        document.getElementById(t + 'Tab').classList.add('hidden');
-        const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
-        btn.classList.remove('border-blue-400', 'text-blue-400');
-        btn.classList.add('border-transparent', 'text-gray-400');
+// Show main tab
+function showMainTab(tabName) {
+    // Hide all main tabs
+    ['requests', 'runner', 'settings'].forEach(t => {
+        document.getElementById(t + 'TabContent').classList.add('hidden');
+        const btn = document.getElementById('mainTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) {
+            btn.classList.remove('text-blue-400', 'bg-blue-500/10');
+            btn.classList.add('text-gray-400');
+        }
     });
     
     // Show selected tab
-    document.getElementById(tabName + 'Tab').classList.remove('hidden');
-    const btn = document.getElementById('tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
-    btn.classList.add('border-blue-400', 'text-blue-400');
-    btn.classList.remove('border-transparent', 'text-gray-400');
+    document.getElementById(tabName + 'TabContent').classList.remove('hidden');
+    const btn = document.getElementById('mainTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    if (btn) {
+        btn.classList.add('text-blue-400', 'bg-blue-500/10');
+        btn.classList.remove('text-gray-400');
+    }
+}
+
+// Show sub-tab (within Requests tab)
+function showSubTab(tabName) {
+    // Hide all sub-tabs
+    ['editor', 'headers', 'body'].forEach(t => {
+        document.getElementById('subTab' + t.charAt(0).toUpperCase() + t.slice(1) + 'Content').classList.add('hidden');
+        const btn = document.getElementById('subTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (btn) {
+            btn.classList.remove('text-blue-400', 'bg-blue-500/10');
+            btn.classList.add('text-gray-400');
+        }
+    });
+    
+    // Show selected sub-tab
+    document.getElementById('subTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1) + 'Content').classList.remove('hidden');
+    const btn = document.getElementById('subTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1));
+    if (btn) {
+        btn.classList.add('text-blue-400', 'bg-blue-500/10');
+        btn.classList.remove('text-gray-400');
+    }
 }
 
 // Show runner tab
@@ -231,14 +291,253 @@ function updateBulkRequestSelect() {
 }
 
 // Execute single request
+// Runner mode functions
+
+// Execution log storage
+let executionLog = [];
+
+// Show runner tab and update request select
+function showRunnerTab() {
+    updateBulkRequestSelect();
+    updateRunnerRequestSelects();
+}
+
+// Update runner request selects
+function updateRunnerRequestSelects() {
+    const csvSelect = document.getElementById('runnerCsvRequestSelect');
+    const repeatSelect = document.getElementById('runnerRepeatRequestSelect');
+    
+    if (csvSelect) {
+        csvSelect.innerHTML = requests.map(req =>
+            `<option value="${req.id}">${req.name} (${req.method})</option>`
+        ).join('');
+    }
+    
+    if (repeatSelect) {
+        repeatSelect.innerHTML = requests.map(req =>
+            `<option value="${req.id}">${req.name} (${req.method})</option>`
+        ).join('');
+    }
+}
+
+// Run CSV mode
+async function runCsvMode() {
+    const requestId = document.getElementById('runnerCsvRequestSelect').value;
+    const fileInput = document.getElementById('runnerCsvFile');
+    
+    if (!requestId) {
+        alert('Please select a request');
+        return;
+    }
+    
+    if (!fileInput.files.length) {
+        alert('Please upload a CSV file');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = async (e) => {
+        const text = e.target.result;
+        const lines = text.split('\n').filter(line => line.trim());
+        
+        if (lines.length < 2) {
+            alert('CSV file must have at least a header row and one data row');
+            return;
+        }
+        
+        const headers = lines[0].split(',').map(h => h.trim());
+        const dataRows = lines.slice(1);
+        
+        let successCount = 0;
+        let errorCount = 0;
+        
+        for (let i = 0; i < dataRows.length; i++) {
+            const values = dataRows[i].split(',').map(v => v.trim());
+            const logEntry = {
+                id: Date.now() + i,
+                timestamp: new Date().toISOString(),
+                requestName: requests.find(r => r.id == requestId)?.name || 'Unknown',
+                method: requests.find(r => r.id == requestId)?.method || 'GET',
+                url: '',
+                status: null,
+                statusText: null,
+                duration: null,
+                success: false,
+                error: null,
+                variables: {}
+            };
+            
+            // Map CSV values to variables
+            headers.forEach((header, idx) => {
+                logEntry.variables[header] = values[idx] || '';
+            });
+            
+            // Build URL with variable replacement
+            const method = requests.find(r => r.id == requestId)?.method || 'GET';
+            const baseUrl = requests.find(r => r.id == requestId)?.url || '';
+            let url = baseUrl.replace(new RegExp('{{\\(' + headers.join('|') + '\\)}}', 'g'), (match) => {
+                const varName = match.replace('{{(', '').replace(')}}', '');
+                return logEntry.variables[varName] || match;
+            });
+            
+            logEntry.url = url;
+            
+            try {
+                const response = await fetch('/api/proxy', {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requestId, method, url, headers: {}, body: '' })
+                });
+                
+                const result = await response.json();
+                logEntry.status = result.status;
+                logEntry.statusText = result.statusText || '';
+                logEntry.duration = result.duration;
+                logEntry.success = true;
+                successCount++;
+            } catch (error) {
+                logEntry.status = null;
+                logEntry.statusText = null;
+                logEntry.duration = null;
+                logEntry.success = false;
+                logEntry.error = error.message;
+                errorCount++;
+            }
+            
+            executionLog.push(logEntry);
+            renderExecutionLog();
+        }
+        
+        fileInput.value = '';
+        alert(`CSV execution complete! Success: ${successCount}, Errors: ${errorCount}`);
+    };
+    
+    reader.onerror = () => {
+        alert('Error reading CSV file');
+    };
+    
+    reader.readAsText(file);
+}
+
+// Run repeat mode
+async function runRepeatMode() {
+    const requestId = document.getElementById('runnerRepeatRequestSelect').value;
+    const count = parseInt(document.getElementById('runnerRepeatCount').value);
+    
+    if (!requestId) {
+        alert('Please select a request');
+        return;
+    }
+    
+    if (count < 1 || count > 1000) {
+        alert('Please enter a valid count between 1 and 1000');
+        return;
+    }
+    
+    const method = requests.find(r => r.id == requestId)?.method || 'GET';
+    const url = requests.find(r => r.id == requestId)?.url || '';
+    
+    let successCount = 0;
+    let errorCount = 0;
+    
+    for (let i = 0; i < count; i++) {
+        const logEntry = {
+            id: Date.now() + i,
+            timestamp: new Date().toISOString(),
+            requestName: requests.find(r => r.id == requestId)?.name || 'Unknown',
+            method: method,
+            url: url,
+            status: null,
+            statusText: null,
+            duration: null,
+            success: false,
+            error: null
+        };
+        
+        try {
+            const response = await fetch('/api/proxy', {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ requestId, method, url, headers: {}, body: '' })
+            });
+            
+            const result = await response.json();
+            logEntry.status = result.status;
+            logEntry.statusText = result.statusText || '';
+            logEntry.duration = result.duration;
+            logEntry.success = true;
+            successCount++;
+        } catch (error) {
+            logEntry.status = null;
+            logEntry.statusText = null;
+            logEntry.duration = null;
+            logEntry.success = false;
+            logEntry.error = error.message;
+            errorCount++;
+        }
+        
+        executionLog.push(logEntry);
+        renderExecutionLog();
+    }
+    
+    alert(`Repeat execution complete! Success: ${successCount}, Errors: ${errorCount}`);
+}
+
+// Clear execution log
+function clearExecutionLog() {
+    executionLog = [];
+    renderExecutionLog();
+}
+
+// Render execution log
+function renderExecutionLog() {
+    const logContainer = document.getElementById('executionLog');
+    
+    if (!executionLog.length) {
+        logContainer.innerHTML = '<p class="text-sm text-gray-500">No executions yet...</p>';
+        return;
+    }
+    
+    const logItems = executionLog.map(entry => {
+        const statusClass = entry.success ? 'success' : 'error';
+        const statusText = entry.success
+            ? `${entry.status} ${entry.statusText || ''}`
+            : `Error: ${entry.error || 'Unknown error'}`;
+        
+        return `
+            <div class="execution-log-item animate-fade-in">
+                <div class="log-header">
+                    <span class="log-status ${statusClass}">${statusText}</span>
+                    <span class="log-time">${new Date(entry.timestamp).toLocaleString()}</span>
+                </div>
+                <div class="log-details">
+                    <span class="label text-blue-400">${entry.method}</span> ${entry.url}
+                    ${entry.duration ? `<span class="text-gray-500 text-xs ml-2">(${entry.duration}ms)</span>` : ''}
+                </div>
+                ${entry.variables && Object.keys(entry.variables).length > 0 ? `
+                    <div class="log-variables mt-2">
+                        <span class="text-xs text-gray-500">Variables:</span>
+                        <span class="text-xs">${JSON.stringify(entry.variables)}</span>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+    }).join('');
+    
+    logContainer.innerHTML = logItems;
+}
+
+// Execute single request
 async function executeRequest() {
     if (!currentRequestId) {
         alert('Please select a request or enter URL and method');
         return;
     }
     
-    const method = document.getElementById('methodSelect').value;
-    const url = document.getElementById('urlInput').value.trim();
+    const method = document.getElementById('editorMethod').value;
+    const url = document.getElementById('editorUrl').value.trim();
     const headers = document.getElementById('headersInput').value;
     const body = document.getElementById('bodyInput').value;
     
@@ -430,15 +729,15 @@ function setupResizeHandles() {
         });
     }
     
-    // Resize handle between response and console panels
-    const listResizeHandle = document.getElementById('listResizeHandle');
+    // Resize handle for Response Panel (between response and console)
+    const responsePanelResizeHandle = document.getElementById('responsePanelResizeHandle');
     const responsePanel = document.getElementById('responsePanel');
     const consolePanel = document.getElementById('consolePanel');
     
-    if (listResizeHandle && responsePanel && consolePanel) {
-        listResizeHandle.addEventListener('mousedown', (e) => {
-            resizeState.active = 'list';
-            resizeState.handleType = 'list';
+    if (responsePanelResizeHandle && responsePanel && consolePanel) {
+        responsePanelResizeHandle.addEventListener('mousedown', (e) => {
+            resizeState.active = 'responsePanel';
+            resizeState.handleType = 'responsePanel';
             resizeState.container = responsePanel;
             resizeState.isDragging = true;
             document.body.style.cursor = 'row-resize';
@@ -447,6 +746,24 @@ function setupResizeHandles() {
             
             resizeState.startY = e.clientY;
             resizeState.startHeight = responsePanel.offsetHeight;
+        });
+    }
+    
+    // Resize handle for Console Panel (between console and editor)
+    const consolePanelResizeHandle = document.getElementById('consolePanelResizeHandle');
+    
+    if (consolePanelResizeHandle && consolePanel) {
+        consolePanelResizeHandle.addEventListener('mousedown', (e) => {
+            resizeState.active = 'consolePanel';
+            resizeState.handleType = 'consolePanel';
+            resizeState.container = consolePanel;
+            resizeState.isDragging = true;
+            document.body.style.cursor = 'row-resize';
+            e.preventDefault();
+            e.stopPropagation();
+            
+            resizeState.startY = e.clientY;
+            resizeState.startHeight = consolePanel.offsetHeight;
         });
     }
     
@@ -483,6 +800,20 @@ function setupResizeHandles() {
             const maxHeight = window.innerHeight - 250;
             newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
             resizeState.container.style.height = `${newHeight}px`;
+        } else if (resizeState.handleType === 'responsePanel') {
+            const minHeight = 100;
+            const consoleMinHeight = 100;
+            const totalAvailable = window.innerHeight - 150;
+            newHeight = Math.max(minHeight, Math.min(totalAvailable - consoleMinHeight, newHeight));
+            resizeState.container.style.height = `${newHeight}px`;
+            consolePanel.style.height = `${totalAvailable - newHeight}px`;
+        } else if (resizeState.handleType === 'consolePanel') {
+            const minHeight = 100;
+            const responseMinHeight = 100;
+            const totalAvailable = window.innerHeight - 150;
+            newHeight = Math.max(minHeight, Math.min(totalAvailable - responseMinHeight, newHeight));
+            consolePanel.style.height = `${newHeight}px`;
+            resizeState.container.style.height = `${totalAvailable - newHeight}px`;
         } else if (resizeState.handleType === 'list') {
             const minHeight = 100;
             const consoleMinHeight = 100;

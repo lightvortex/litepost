@@ -1,0 +1,64 @@
+- generic [ref=e2]:
+  - complementary [ref=e3]:
+    - heading "LitePost" [level=1] [ref=e5]
+    - generic [ref=e6]:
+      - textbox "Request name" [ref=e8]
+      - button "+ Add Request" [ref=e9] [cursor=pointer]
+      - generic [ref=e10]:
+        - generic [ref=e11] [cursor=pointer]:
+          - generic [ref=e12]:
+            - generic [ref=e13]: GET
+            - generic [ref=e14]: Test Request
+          - generic [ref=e15]: 15/03/2026 14:25:53
+          - button "×" [ref=e16]
+        - generic [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]:
+            - generic [ref=e19]: GET
+            - generic [ref=e20]: Random API Test
+          - generic [ref=e21]: 15/03/2026 07:11:11
+          - button "×" [ref=e22]
+        - generic [ref=e23] [cursor=pointer]:
+          - generic [ref=e24]:
+            - generic [ref=e25]: GET
+            - generic [ref=e26]: Variable Test
+          - generic [ref=e27]: 15/03/2026 07:10:28
+          - button "×" [ref=e28]
+        - generic [ref=e29] [cursor=pointer]:
+          - generic [ref=e30]:
+            - generic [ref=e31]: GET
+            - generic [ref=e32]: Test API
+          - generic [ref=e33]: 15/03/2026 07:09:49
+          - button "×" [ref=e34]
+  - main [ref=e35]:
+    - generic [ref=e37]:
+      - button "Requests" [ref=e38] [cursor=pointer]
+      - button "Runner" [ref=e39] [cursor=pointer]
+      - button "Settings" [ref=e40] [cursor=pointer]
+    - generic [ref=e42]:
+      - generic [ref=e43]:
+        - button "Editor" [ref=e44] [cursor=pointer]
+        - button "Headers" [ref=e45] [cursor=pointer]
+        - button "Body" [ref=e46] [cursor=pointer]
+      - generic [ref=e50]:
+        - generic [ref=e51]:
+          - generic [ref=e52]: URL
+          - textbox "https://api.example.com/endpoint" [ref=e53]
+        - generic [ref=e54]:
+          - generic [ref=e55]: Method
+          - combobox [ref=e56]:
+            - option "GET" [selected]
+            - option "POST"
+            - option "PUT"
+            - option "DELETE"
+            - option "PATCH"
+            - option "HEAD"
+            - option "OPTIONS"
+      - generic [ref=e57]:
+        - generic [ref=e59]:
+          - heading "Response" [level=3] [ref=e60]
+          - button "Collapse" [ref=e62] [cursor=pointer]:
+            - img [ref=e63]
+        - generic [ref=e73]:
+          - heading "Console" [level=3] [ref=e74]
+          - button "Collapse" [ref=e76] [cursor=pointer]:
+            - img [ref=e77]

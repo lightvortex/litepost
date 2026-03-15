@@ -26,6 +26,211 @@
 }
 
 /* ============================================
+   Main Tab Navigation
+   ============================================ */
+.main-tab-nav {
+    display: flex;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    height: var(--tab-height);
+}
+
+.main-tab {
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    top: 1px;
+}
+
+.main-tab:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-tertiary);
+}
+
+.main-tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+}
+
+.main-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--accent-blue);
+}
+
+/* ============================================
+   Sub-Tab Navigation
+   ============================================ */
+.sub-tab-nav {
+    display: flex;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    height: var(--tab-height);
+}
+
+.sub-tab {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all var(--transition-speed) ease;
+    position: relative;
+    top: 1px;
+}
+
+.sub-tab:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-tertiary);
+}
+
+.sub-tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+}
+
+.sub-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--accent-blue);
+}
+
+/* ============================================
+   Main Tab Content Areas
+   ============================================ */
+.main-tab-content {
+    display: none;
+    flex: 1;
+    overflow: hidden;
+}
+
+.main-tab-content.active {
+    display: flex;
+}
+
+/* ============================================
+   Runner Tab Layout
+   ============================================ */
+.runner-layout {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.runner-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.runner-panel.left {
+    flex: 0 0 320px;
+}
+
+.runner-panel.right {
+    flex: 1;
+}
+
+.runner-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.execution-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.execution-log-item {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.execution-log-item .log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.execution-log-item .log-status {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.execution-log-item .log-status.success {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.execution-log-item .log-status.error {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: var(--accent-red);
+}
+
+.execution-log-item .log-details {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   Settings Tab Placeholder
+   ============================================ */
+.settings-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-secondary);
+}
+
+.settings-placeholder svg {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.settings-placeholder h3 {
+    font-size: 1.125rem;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.settings-placeholder p {
+    font-size: 0.875rem;
+}
+
+/* ============================================
    Base Styles
    ============================================ */
 * {

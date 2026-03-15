@@ -17,11 +17,11 @@
             
             <div class="flex-1 overflow-y-auto p-2">
                 <div class="mb-2">
-                    <input type="text" id="requestName" placeholder="Request name" 
+                    <input type="text" id="requestName" placeholder="Request name"
                            class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
                 </div>
                 
-                <button onclick="createRequest()" 
+                <button onclick="createRequest()"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded mb-4 text-sm font-medium">
                     + Add Request
                 </button>
@@ -34,153 +34,228 @@
         
         <!-- Main Content -->
         <main class="flex-1 flex flex-col">
-            <!-- Header -->
-            <header class="bg-gray-800 border-b border-gray-700 p-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <select id="methodSelect" class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
-                            <option value="GET">GET</option>
-                            <option value="POST">POST</option>
-                            <option value="PUT">PUT</option>
-                            <option value="DELETE">DELETE</option>
-                            <option value="PATCH">PATCH</option>
-                            <option value="HEAD">HEAD</option>
-                            <option value="OPTIONS">OPTIONS</option>
-                        </select>
-                        <input type="text" id="urlInput" placeholder="https://api.example.com/endpoint" 
-                               class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
-                    </div>
-                    
-                    <div class="flex items-center space-x-2">
-                        <button onclick="showRunnerTab()" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded text-sm font-medium">
-                            Runner
-                        </button>
-                        <button onclick="executeRequest()" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded text-sm font-medium">
-                            Execute
-                        </button>
-                    </div>
+            <!-- Main Tab Navigation (Top Level) -->
+            <div class="bg-gray-800 border-b border-gray-700">
+                <div class="flex">
+                    <button onclick="showMainTab('requests')" id="mainTabRequests" class="main-tab px-6 py-3 text-sm font-medium border-b-2 border-blue-400 text-blue-400">
+                        Requests
+                    </button>
+                    <button onclick="showMainTab('runner')" id="mainTabRunner" class="main-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-300">
+                        Runner
+                    </button>
+                    <button onclick="showMainTab('settings')" id="mainTabSettings" class="main-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-300">
+                        Settings
+                    </button>
                 </div>
-            </header>
-            
-            <!-- Tabs -->
-            <div class="flex border-b border-gray-700 bg-gray-800">
-                <button onclick="showTab('editor')" id="tabEditor" class="px-6 py-3 text-sm font-medium border-b-2 border-blue-400 text-blue-400">
-                    Editor
-                </button>
-                <button onclick="showTab('headers')" id="tabHeaders" class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-300">
-                    Headers
-                </button>
-                <button onclick="showTab('body')" id="tabBody" class="px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-300">
-                    Body
-                </button>
             </div>
             
-            <!-- Tab Content -->
-            <div class="flex-1 overflow-hidden flex flex-col">
-                <!-- Editor Tabs -->
-                <div class="flex-1 overflow-y-auto" id="editorContainer">
-                    <!-- Editor Tab -->
-                    <div id="editorTab" class="p-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-gray-700 rounded p-4">
-                                <label class="block text-sm font-medium mb-2">URL</label>
-                                <input type="text" id="editorUrl" placeholder="https://api.example.com/endpoint"
-                                       class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+            <!-- Tab Content Areas -->
+            <div class="flex-1 overflow-hidden">
+                <!-- Requests Tab Content -->
+                <div id="requestsTabContent" class="flex-1 overflow-hidden flex flex-col">
+                    <!-- Editor Tabs (nested within Requests tab) -->
+                    <div class="flex border-b border-gray-700 bg-gray-800">
+                        <button onclick="showSubTab('editor')" id="subTabEditor" class="sub-tab px-6 py-3 text-sm font-medium border-b-2 border-blue-400 text-blue-400">
+                            Editor
+                        </button>
+                        <button onclick="showSubTab('headers')" id="subTabHeaders" class="sub-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-300">
+                            Headers
+                        </button>
+                        <button onclick="showSubTab('body')" id="subTabBody" class="sub-tab px-6 py-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-300">
+                            Body
+                        </button>
+                    </div>
+                    
+                    <!-- Sub Tab Content -->
+                    <div class="flex-1 overflow-hidden flex flex-col">
+                        <!-- Editor Sub Tab -->
+                        <div id="subTabEditorContent" class="flex-1 overflow-y-auto">
+                            <div class="p-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-gray-700 rounded p-4">
+                                        <label class="block text-sm font-medium mb-2">URL</label>
+                                        <input type="text" id="editorUrl" placeholder="https://api.example.com/endpoint"
+                                               class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                    </div>
+                                    <div class="bg-gray-700 rounded p-4">
+                                        <label class="block text-sm font-medium mb-2">Method</label>
+                                        <select id="editorMethod" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
+                                            <option value="GET">GET</option>
+                                            <option value="POST">POST</option>
+                                            <option value="PUT">PUT</option>
+                                            <option value="DELETE">DELETE</option>
+                                            <option value="PATCH">PATCH</option>
+                                            <option value="HEAD">HEAD</option>
+                                            <option value="OPTIONS">OPTIONS</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="bg-gray-700 rounded p-4">
-                                <label class="block text-sm font-medium mb-2">Method</label>
-                                <select id="editorMethod" class="w-full bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-400">
-                                    <option value="GET">GET</option>
-                                    <option value="POST">POST</option>
-                                    <option value="PUT">PUT</option>
-                                    <option value="DELETE">DELETE</option>
-                                    <option value="PATCH">PATCH</option>
-                                    <option value="HEAD">HEAD</option>
-                                    <option value="OPTIONS">OPTIONS</option>
-                                </select>
+                        </div>
+                        
+                        <!-- Headers Sub Tab -->
+                        <div id="subTabHeadersContent" class="hidden flex-1 overflow-y-auto">
+                            <div class="p-4">
+                                <div class="bg-gray-700 rounded p-4">
+                                    <label class="block text-sm font-medium mb-2">Headers (JSON format)</label>
+                                    <textarea id="headersInput" placeholder='{"Content-Type": "application/json"}'
+                                              class="w-full h-48 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Body Sub Tab -->
+                        <div id="subTabBodyContent" class="hidden flex-1 overflow-y-auto">
+                            <div class="p-4">
+                                <div class="bg-gray-700 rounded p-4">
+                                    <label class="block text-sm font-medium mb-2">Body</label>
+                                    <textarea id="bodyInput" placeholder='{"key": "value"}'
+                                              class="w-full h-48 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Headers Tab -->
-                    <div id="headersTab" class="p-4 hidden">
-                        <div class="bg-gray-700 rounded p-4">
-                            <label class="block text-sm font-medium mb-2">Headers (JSON format)</label>
-                            <textarea id="headersInput" placeholder='{"Content-Type": "application/json"}'
-                                      class="w-full h-48 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
+                    <!-- Response and Console List View -->
+                    <div class="flex-1 flex flex-col overflow-hidden" id="responseListView">
+                        <!-- Response Panel -->
+                        <div class="flex-1 flex flex-col bg-gray-800 border-t border-gray-700" id="responsePanel">
+                            <div class="flex items-center justify-between p-2 border-b border-gray-700">
+                                <h3 class="font-medium text-sm">Response</h3>
+                                <div class="flex items-center space-x-1">
+                                    <button id="collapseResponseBtn" class="p-1 hover:bg-gray-700 rounded" title="Collapse">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+                                    <button id="expandResponseBtn" class="p-1 hover:bg-gray-700 rounded hidden" title="Expand">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex-1 overflow-hidden p-2">
+                                <div class="flex h-full" id="responsePanelInner">
+                                    <div class="w-40 border-r border-gray-700 p-2 flex flex-col">
+                                        <div id="responseStatus" class="text-xs mb-2 font-mono"></div>
+                                    </div>
+                                    <div class="flex-1 overflow-hidden">
+                                        <pre id="responseData" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-green-400 h-full"></pre>
+                                    </div>
+                                </div>
+                                <!-- Resize Handle within Response Panel (between status and data) -->
+                                <div class="h-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="responseResizeHandle"></div>
+                            </div>
+                            <!-- Resize Handle for Response Panel (between response and console) -->
+                            <div class="h-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="responsePanelResizeHandle"></div>
                         </div>
-                    </div>
-                    
-                    <!-- Body Tab -->
-                    <div id="bodyTab" class="p-4 hidden">
-                        <div class="bg-gray-700 rounded p-4">
-                            <label class="block text-sm font-medium mb-2">Body</label>
-                            <textarea id="bodyInput" placeholder='{"key": "value"}'
-                                      class="w-full h-48 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-sm font-mono focus:outline-none focus:border-blue-400"></textarea>
+                        
+                        <!-- Console Panel -->
+                        <div class="flex-1 flex flex-col bg-gray-800 border-t border-gray-700" id="consolePanel">
+                            <div class="flex items-center justify-between p-2 border-b border-gray-700">
+                                <h3 class="font-medium text-sm">Console</h3>
+                                <div class="flex items-center space-x-1">
+                                    <button id="collapseConsoleBtn" class="p-1 hover:bg-gray-700 rounded" title="Collapse">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+                                    <button id="expandConsoleBtn" class="p-1 hover:bg-gray-700 rounded hidden" title="Expand">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex-1 overflow-hidden p-2">
+                                <div id="responseConsole" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-gray-400 h-full"></div>
+                            </div>
+                            <!-- Resize Handle for Console Panel (between console and editor) -->
+                            <div class="h-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="consolePanelResizeHandle"></div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Resize Handle between editor and response list -->
-                <div class="w-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="editorResizeHandle"></div>
+                <!-- Runner Tab Content -->
+                <div id="runnerTabContent" class="hidden flex-1 overflow-hidden">
+                    <!-- Runner Interface -->
+                    <div class="p-4">
+                        <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                            <h3 class="text-lg font-medium mb-4">Runner</h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <!-- CSV Upload Mode -->
+                                <div class="bg-gray-800 rounded-lg p-4 border border-gray-600">
+                                    <h4 class="font-medium mb-3 text-purple-400">CSV Upload Mode</h4>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-sm font-medium mb-2">Select Request</label>
+                                            <select id="runnerCsvRequestSelect" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm">
+                                                <option value="">-- Select a request --</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-2">CSV File</label>
+                                            <input type="file" id="runnerCsvFile" accept=".csv"
+                                                   class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm">
+                                            <p class="text-xs text-gray-400 mt-1">First row should be headers (column names)</p>
+                                        </div>
+                                        <button onclick="runCsvMode()" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded text-sm font-medium">
+                                            Run CSV
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Repeat Mode -->
+                                <div class="bg-gray-800 rounded-lg p-4 border border-gray-600">
+                                    <h4 class="font-medium mb-3 text-green-400">Repeat Mode</h4>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-sm font-medium mb-2">Select Request</label>
+                                            <select id="runnerRepeatRequestSelect" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm">
+                                                <option value="">-- Select a request --</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-2">Number of Executions</label>
+                                            <input type="number" id="runnerRepeatCount" min="1" max="1000" value="10"
+                                                   class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm">
+                                        </div>
+                                        <button onclick="runRepeatMode()" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded text-sm font-medium">
+                                            Run N Times
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Execution Log Panel -->
+                        <div class="bg-gray-800 rounded-lg border border-gray-700">
+                            <div class="flex items-center justify-between p-3 border-b border-gray-700">
+                                <h3 class="font-medium">Execution Log</h3>
+                                <button onclick="clearExecutionLog()" class="text-sm text-gray-400 hover:text-gray-300">Clear</button>
+                            </div>
+                            <div class="p-3" id="executionLog">
+                                <p class="text-sm text-gray-500">No executions yet...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-                <!-- Response and Console List View -->
-                <div class="flex-1 flex flex-col overflow-hidden" id="responseListView">
-                    <!-- Response Panel -->
-                    <div class="flex-1 flex flex-col bg-gray-800 border-t border-gray-700" id="responsePanel">
-                        <div class="flex items-center justify-between p-2 border-b border-gray-700">
-                            <h3 class="font-medium text-sm">Response</h3>
-                            <div class="flex items-center space-x-1">
-                                <button id="collapseResponseBtn" class="p-1 hover:bg-gray-700 rounded" title="Collapse">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                    </svg>
-                                </button>
-                                <button id="expandResponseBtn" class="p-1 hover:bg-gray-700 rounded hidden" title="Expand">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex-1 overflow-hidden p-2">
-                            <div class="flex h-full" id="responsePanelInner">
-                                <div class="w-40 border-r border-gray-700 p-2 flex flex-col">
-                                    <div id="responseStatus" class="text-xs mb-2 font-mono"></div>
-                                </div>
-                                <div class="flex-1 overflow-hidden">
-                                    <pre id="responseData" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-green-400 h-full"></pre>
-                                </div>
-                            </div>
-                            <!-- Resize Handle within Response Panel (between status and data) -->
-                            <div class="h-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="responseResizeHandle"></div>
+                <!-- Settings Tab Content -->
+                <div id="settingsTabContent" class="hidden flex-1 overflow-hidden">
+                    <div class="p-4">
+                        <div class="bg-gray-700 rounded-lg p-8 text-center">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <h3 class="text-xl font-medium mb-2">Settings</h3>
+                            <p class="text-gray-400">Settings will be available soon.</p>
                         </div>
                     </div>
-                    
-                    <!-- Resize Handle between Response and Console -->
-                    <div class="h-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="listResizeHandle"></div>
-                    
-                    <!-- Console Panel -->
-                    <div class="flex-1 flex flex-col bg-gray-800 border-t border-gray-700" id="consolePanel">
-                        <div class="flex items-center justify-between p-2 border-b border-gray-700">
-                            <h3 class="font-medium text-sm">Console</h3>
-                            <div class="flex items-center space-x-1">
-                                <button id="collapseConsoleBtn" class="p-1 hover:bg-gray-700 rounded" title="Collapse">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                    </svg>
-                                </button>
-                                <button id="expandConsoleBtn" class="p-1 hover:bg-gray-700 rounded hidden" title="Expand">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="flex-1 overflow-hidden p-2">
-                            <div id="responseConsole" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-gray-400 h-full"></div>
-                        </div>
-                    </div>
+                </div>
+            </div>
         </main>
     </div>
     
