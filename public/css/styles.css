@@ -52,7 +52,42 @@
 .json-boolean {
     color: #f87171;
 }
-
 .json-null {
     color: #9ca3af;
 }
+
+/* Resize handles */
+.cursor-row-resize {
+    cursor: row-resize;
+}
+
+.cursor-col-resize {
+    cursor: col-resize;
+}
+
+/* Collapsed panel states */
+#responsePanel.collapsed {
+    height: 40px !important;
+}
+
+#responsePanel.collapsed .overflow-hidden {
+    display: none;
+}
+
+#consolePanel.collapsed {
+    height: 40px !important;
+}
+
+#consolePanel.collapsed .overflow-hidden {
+    display: none;
+}
+
+/* Response panel internal resize */
+#responseResizeHandle {
+    display: none;
+}
+
+#responsePanel:not(.collapsed) #responseResizeHandle {
+    display: block;
+}
+

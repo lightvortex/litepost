@@ -401,45 +401,159 @@ function formatDate(dateStr) {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
 
-// Initialize resize handle
+// Initialize all handlers
 document.addEventListener('DOMContentLoaded', () => {
     loadRequests();
     setupEventListeners();
-    setupResizeHandle();
+    setupResizeHandles();
+    setupCollapseExpand();
 });
 
-function setupResizeHandle() {
-    const resizeHandle = document.getElementById('resizeHandle');
+function setupResizeHandles() {
+    // Resize handle between editor and response list
+    const editorResizeHandle = document.getElementById('editorResizeHandle');
+    const editorContainer = document.querySelector('.flex-1.overflow-y-auto');
+    const responseListView = document.getElementById('responseListView');
+    
+    if (editorResizeHandle && editorContainer && responseListView) {
+        let isResizing = false;
+        
+        editorResizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const rect = editorContainer.getBoundingClientRect();
+            const newWidth = e.clientX - rect.left;
+            
+            if (newWidth > 200 && newWidth < window.innerWidth - 200) {
+                editorContainer.style.width = `${newWidth}px`;
+                editorContainer.style.maxWidth = `${newWidth}px`;
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+            }
+        });
+    }
+    
+    // Resize handle between response and console panels
+    const listResizeHandle = document.getElementById('listResizeHandle');
     const responsePanel = document.getElementById('responsePanel');
+    const consolePanel = document.getElementById('consolePanel');
+    
+    if (listResizeHandle && responsePanel && consolePanel) {
+        let isResizing = false;
+        let startY = 0;
+        let startHeight = 0;
+        
+        listResizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'row-resize';
+            e.preventDefault();
+            
+            startY = e.clientY;
+            startHeight = responsePanel.offsetHeight;
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const deltaY = startY - e.clientY;
+            const newHeight = startHeight + deltaY;
+            
+            if (newHeight >= 100 && newHeight <= window.innerHeight - 150) {
+                responsePanel.style.height = `${newHeight}px`;
+                consolePanel.style.height = `${window.innerHeight - 150 - newHeight}px`;
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+            }
+        });
+    }
+    
+    // Resize handle within response panel (between status and data)
+    const responseResizeHandle = document.getElementById('responseResizeHandle');
+    const responseStatus = document.getElementById('responseStatus');
     const responseData = document.getElementById('responseData');
-    const responseConsole = document.getElementById('responseConsole');
     
-    if (!resizeHandle || !responsePanel || !responseData || !responseConsole) return;
-    
-    let isResizing = false;
-    
-    resizeHandle.addEventListener('mousedown', (e) => {
-        isResizing = true;
-        document.body.style.cursor = 'col-resize';
-        e.preventDefault();
-    });
-    
-    document.addEventListener('mousemove', (e) => {
-        if (!isResizing) return;
+    if (responseResizeHandle && responseStatus && responseData) {
+        let isResizing = false;
         
-        const rect = responsePanel.getBoundingClientRect();
-        const newWidth = e.clientX - rect.left;
+        responseResizeHandle.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            document.body.style.cursor = 'row-resize';
+            e.preventDefault();
+        });
         
-        if (newWidth > 150 && newWidth < window.innerWidth - 100) {
-            responsePanel.style.width = `${newWidth}px`;
-            responseData.style.width = `${newWidth - 24}px`;
-        }
-    });
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            
+            const rect = responseStatus.getBoundingClientRect();
+            const newHeight = e.clientY - rect.bottom;
+            
+            if (newHeight >= 20 && newHeight <= 300) {
+                responseStatus.style.height = `${newHeight}px`;
+                responseData.style.height = `${300 - newHeight}px`;
+            }
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+            }
+        });
+    }
+}
+
+function setupCollapseExpand() {
+    // Collapse/Expand Response Panel
+    const collapseResponseBtn = document.getElementById('collapseResponseBtn');
+    const expandResponseBtn = document.getElementById('expandResponseBtn');
+    const responsePanel = document.getElementById('responsePanel');
     
-    document.addEventListener('mouseup', () => {
-        if (isResizing) {
-            isResizing = false;
-            document.body.style.cursor = '';
-        }
-    });
+    if (collapseResponseBtn && expandResponseBtn && responsePanel) {
+        collapseResponseBtn.addEventListener('click', () => {
+            responsePanel.classList.add('collapsed');
+            collapseResponseBtn.classList.add('hidden');
+            expandResponseBtn.classList.remove('hidden');
+        });
+        
+        expandResponseBtn.addEventListener('click', () => {
+            responsePanel.classList.remove('collapsed');
+            collapseResponseBtn.classList.remove('hidden');
+            expandResponseBtn.classList.add('hidden');
+        });
+    }
+    
+    // Collapse/Expand Console Panel
+    const collapseConsoleBtn = document.getElementById('collapseConsoleBtn');
+    const expandConsoleBtn = document.getElementById('expandConsoleBtn');
+    const consolePanel = document.getElementById('consolePanel');
+    
+    if (collapseConsoleBtn && expandConsoleBtn && consolePanel) {
+        collapseConsoleBtn.addEventListener('click', () => {
+            consolePanel.classList.add('collapsed');
+            collapseConsoleBtn.classList.add('hidden');
+            expandConsoleBtn.classList.remove('hidden');
+        });
+        
+        expandConsoleBtn.addEventListener('click', () => {
+            consolePanel.classList.remove('collapsed');
+            collapseConsoleBtn.classList.remove('hidden');
+            expandConsoleBtn.classList.add('hidden');
+        });
+    }
 }
