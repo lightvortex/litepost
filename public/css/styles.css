@@ -1,0 +1,58 @@
+/* Custom styles for LitePost */
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* Tab active state */
+.tab-active {
+    border-bottom-color: #60a5fa !important;
+    color: #60a5fa !important;
+}
+
+/* Request item hover */
+.request-item:hover {
+    background-color: #374151;
+}
+
+/* Request item active */
+.request-item.active {
+    background-color: #2563eb;
+    border-left: 3px solid #60a5fa;
+}
+
+/* Syntax highlighting for JSON */
+.json-key {
+    color: #818cf8;
+}
+
+.json-string {
+    color: #a5f3fc;
+}
+
+.json-number {
+    color: #fbbf24;
+}
+
+.json-boolean {
+    color: #f87171;
+}
+
+.json-null {
+    color: #9ca3af;
+}
