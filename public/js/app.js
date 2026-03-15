@@ -4,10 +4,23 @@
 let requests = [];
 let currentRequestId = null;
 
+// Resize state management
+const resizeState = {
+    active: null,
+    startY: 0,
+    startHeight: 0,
+    handleType: null,
+    container: null,
+    isDragging: false
+};
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
     loadRequests();
     setupEventListeners();
+    setupResizeHandles();
+    setupCollapseExpand();
+    setupSmoothTransitions();
 });
 
 // Setup event listeners
@@ -50,23 +63,28 @@ function renderRequests() {
     
     if (requests.length === 0) {
         container.innerHTML = `
-            <div class="text-center text-gray-500 py-8 text-sm">
-                No requests yet. Click "Add Request" to create one.
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <div class="empty-state-text">No requests yet. Click "Add Request" to create one.</div>
             </div>
         `;
         return;
     }
     
-    container.innerHTML = requests.map(req => `
+    container.innerHTML = requests.map((req, index) => `
         <div class="request-item p-3 rounded cursor-pointer ${currentRequestId === req.id ? 'active' : ''}"
-             onclick="selectRequest(${req.id})">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs font-mono bg-gray-600 px-2 py-1 rounded">${req.method}</span>
-                    <span class="text-sm font-medium truncate flex-1">${escapeHtml(req.name)}</span>
-                </div>
-                <span class="text-xs text-gray-500">${formatDate(req.created_at)}</span>
+             onclick="selectRequest(${req.id})"
+             style="animation-delay: ${index * 0.05}s">
+            <div class="request-info">
+                <span class="method-badge">${req.method}</span>
+                <span class="request-name">${escapeHtml(req.name)}</span>
             </div>
+            <span class="request-time">${formatDate(req.created_at)}</span>
+            <button onclick="event.stopPropagation(); deleteRequest(${req.id})"
+                    class="delete-btn"
+                    title="Delete request">
+                ×
+            </button>
         </div>
     `).join('');
 }
@@ -182,36 +200,6 @@ function deleteRequest(id) {
     });
 }
 
-// Add delete button to request items
-function renderRequests() {
-    const container = document.getElementById('requestsList');
-    
-    if (requests.length === 0) {
-        container.innerHTML = `
-            <div class="text-center text-gray-500 py-8 text-sm">
-                No requests yet. Click "Add Request" to create one.
-            </div>
-        `;
-        return;
-    }
-    
-    container.innerHTML = requests.map(req => `
-        <div class="request-item p-3 rounded cursor-pointer ${currentRequestId === req.id ? 'active' : ''}"
-             onclick="selectRequest(${req.id})">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs font-mono bg-gray-600 px-2 py-1 rounded">${req.method}</span>
-                    <span class="text-sm font-medium truncate flex-1">${escapeHtml(req.name)}</span>
-                </div>
-                <button onclick="event.stopPropagation(); deleteRequest(${req.id})"
-                        class="text-gray-500 hover:text-red-400 p-1">
-                    ×
-                </button>
-            </div>
-        </div>
-    `).join('');
-}
-
 // Show tab
 function showTab(tabName) {
     // Hide all tabs
@@ -259,10 +247,14 @@ async function executeRequest() {
         return;
     }
     
-    // Clear previous results
-    document.getElementById('responseStatus').innerHTML = '';
-    document.getElementById('responseData').innerHTML = '';
-    document.getElementById('responseConsole').innerHTML = '';
+    // Clear previous results with animation
+    const responseStatus = document.getElementById('responseStatus');
+    const responseData = document.getElementById('responseData');
+    const responseConsole = document.getElementById('responseConsole');
+    
+    responseStatus.innerHTML = '';
+    responseData.innerHTML = '';
+    responseConsole.innerHTML = '';
     
     try {
         const response = await fetch('/api/proxy', {
@@ -274,29 +266,27 @@ async function executeRequest() {
         const result = await response.json();
         
         // Display response
-        const statusEl = document.getElementById('responseStatus');
-        statusEl.innerHTML = `<span class="text-sm">${result.status} ${result.statusText || ''}</span>`;
+        responseStatus.innerHTML = `<span class="status-success text-sm">${result.status} ${result.statusText || ''}</span>`;
         
         const dataEl = document.getElementById('responseData');
         dataEl.textContent = JSON.stringify(result.data, null, 2);
         
         // Log to console
-        const consoleEl = document.getElementById('responseConsole');
-        consoleEl.innerHTML = `
-            <div class="mb-2">
-                <span class="text-blue-400">Request:</span> ${method} ${url}
+        responseConsole.innerHTML = `
+            <div class="animate-fade-in">
+                <span class="label text-blue-400">Request:</span> ${method} ${url}
             </div>
-            ${headers ? `<div class="mb-2"><span class="text-purple-400">Headers:</span> ${JSON.stringify(headers)}</div>` : ''}
-            ${body ? `<div class="mb-2"><span class="text-green-400">Body:</span> ${JSON.stringify(body)}</div>` : ''}
-            <div class="mb-2">
-                <span class="text-yellow-400">Response:</span> ${result.status} ${result.statusText || ''}
+            ${headers ? `<div class="animate-fade-in"><span class="label text-purple-400">Headers:</span> ${JSON.stringify(headers)}</div>` : ''}
+            ${body ? `<div class="animate-fade-in"><span class="label text-green-400">Body:</span> ${JSON.stringify(body)}</div>` : ''}
+            <div class="animate-fade-in">
+                <span class="label text-yellow-400">Response:</span> ${result.status} ${result.statusText || ''}
             </div>
         `;
     } catch (error) {
-        document.getElementById('responseStatus').innerHTML = `<span class="text-red-400">Error: ${error.message}</span>`;
-        document.getElementById('responseData').innerHTML = '';
-        document.getElementById('responseConsole').innerHTML = `
-            <div class="text-red-400">Error: ${error.message}</div>
+        responseStatus.innerHTML = `<span class="status-error text-sm">Error: ${error.message}</span>`;
+        responseData.innerHTML = '';
+        responseConsole.innerHTML = `
+            <div class="animate-fade-in text-red-400">Error: ${error.message}</div>
         `;
     }
 }
@@ -335,7 +325,7 @@ async function runBulk() {
     formData.append('requestId', requestId);
     
     try {
-        document.getElementById('responseStatus').innerHTML = '<span class="text-yellow-400">Running bulk requests...</span>';
+        document.getElementById('responseStatus').innerHTML = '<span class="status-warning text-sm">Running bulk requests...</span>';
         document.getElementById('responseData').innerHTML = '';
         
         const response = await fetch('/api/bulk-run', {
@@ -346,45 +336,42 @@ async function runBulk() {
         const result = await response.json();
         
         // Display results
-        const statusEl = document.getElementById('responseStatus');
-        statusEl.innerHTML = `<span class="text-green-400">Completed: ${result.successful} successful, ${result.failed} failed</span>`;
+        document.getElementById('responseStatus').innerHTML = `<span class="status-success text-sm">Completed: ${result.successful} successful, ${result.failed} failed</span>`;
         
-        const dataEl = document.getElementById('responseData');
-        dataEl.innerHTML = `
-            <div class="text-sm mb-2">
-                <span class="text-blue-400">Total:</span> ${result.total}
+        document.getElementById('responseData').innerHTML = `
+            <div class="text-sm mb-2 animate-fade-in">
+                <span class="label text-blue-400">Total:</span> ${result.total}
             </div>
-            <div class="text-sm mb-2">
-                <span class="text-green-400">Successful:</span> ${result.successful}
+            <div class="text-sm mb-2 animate-fade-in">
+                <span class="label text-green-400">Successful:</span> ${result.successful}
             </div>
-            <div class="text-sm mb-2">
-                <span class="text-red-400">Failed:</span> ${result.failed}
+            <div class="text-sm mb-2 animate-fade-in">
+                <span class="label text-red-400">Failed:</span> ${result.failed}
             </div>
         `;
         
         // Log results
-        const consoleEl = document.getElementById('responseConsole');
-        consoleEl.innerHTML = `
-            <div class="mb-2">
-                <span class="text-blue-400">Bulk Run Results:</span>
+        document.getElementById('responseConsole').innerHTML = `
+            <div class="mb-2 animate-fade-in">
+                <span class="label text-blue-400">Bulk Run Results:</span>
             </div>
             ${result.results.map(r => `
-                <div class="mb-1">
-                    <span class="text-green-400">✓</span> ${r.url} - Status: ${r.status}
+                <div class="animate-fade-in">
+                    <span class="label text-green-400">✓</span> ${r.url} - Status: ${r.status}
                 </div>
             `).join('')}
             ${result.errors.map(e => `
-                <div class="mb-1">
-                    <span class="text-red-400">✗</span> ${e.url} - ${e.error}
+                <div class="animate-fade-in">
+                    <span class="label text-red-400">✗</span> ${e.url} - ${e.error}
                 </div>
             `).join('')}
         `;
         
         closeCsvModal();
     } catch (error) {
-        document.getElementById('responseStatus').innerHTML = `<span class="text-red-400">Error: ${error.message}</span>`;
+        document.getElementById('responseStatus').innerHTML = `<span class="status-error text-sm">Error: ${error.message}</span>`;
         document.getElementById('responseConsole').innerHTML = `
-            <div class="text-red-400">Error: ${error.message}</div>
+            <div class="animate-fade-in text-red-400">Error: ${error.message}</div>
         `;
     }
 }
@@ -401,46 +388,45 @@ function formatDate(dateStr) {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
 }
 
-// Initialize all handlers
-document.addEventListener('DOMContentLoaded', () => {
-    loadRequests();
-    setupEventListeners();
-    setupResizeHandles();
-    setupCollapseExpand();
-});
+// ============================================
+// Smooth Transitions Setup
+// ============================================
+function setupSmoothTransitions() {
+    // Add smooth transition to all resizeable elements
+    const resizeableElements = [
+        document.getElementById('editorContainer'),
+        document.getElementById('responsePanel'),
+        document.getElementById('consolePanel')
+    ];
+    
+    resizeableElements.forEach(el => {
+        if (el) {
+            el.style.transition = 'height 0.15s ease-out';
+        }
+    });
+}
 
+// ============================================
+// Resize Handles Setup
+// ============================================
 function setupResizeHandles() {
     // Resize handle between editor and response list
     const editorResizeHandle = document.getElementById('editorResizeHandle');
-    const editorContainer = document.querySelector('.flex-1.overflow-y-auto');
+    const editorContainer = document.getElementById('editorContainer');
     const responseListView = document.getElementById('responseListView');
     
     if (editorResizeHandle && editorContainer && responseListView) {
-        let isResizing = false;
-        
         editorResizeHandle.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            document.body.style.cursor = 'col-resize';
+            resizeState.active = 'editor';
+            resizeState.handleType = 'editor';
+            resizeState.container = editorContainer;
+            resizeState.isDragging = true;
+            document.body.style.cursor = 'row-resize';
             e.preventDefault();
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
+            e.stopPropagation();
             
-            const rect = editorContainer.getBoundingClientRect();
-            const newWidth = e.clientX - rect.left;
-            
-            if (newWidth > 200 && newWidth < window.innerWidth - 200) {
-                editorContainer.style.width = `${newWidth}px`;
-                editorContainer.style.maxWidth = `${newWidth}px`;
-            }
-        });
-        
-        document.addEventListener('mouseup', () => {
-            if (isResizing) {
-                isResizing = false;
-                document.body.style.cursor = '';
-            }
+            resizeState.startY = e.clientY;
+            resizeState.startHeight = editorContainer.offsetHeight;
         });
     }
     
@@ -450,36 +436,17 @@ function setupResizeHandles() {
     const consolePanel = document.getElementById('consolePanel');
     
     if (listResizeHandle && responsePanel && consolePanel) {
-        let isResizing = false;
-        let startY = 0;
-        let startHeight = 0;
-        
         listResizeHandle.addEventListener('mousedown', (e) => {
-            isResizing = true;
+            resizeState.active = 'list';
+            resizeState.handleType = 'list';
+            resizeState.container = responsePanel;
+            resizeState.isDragging = true;
             document.body.style.cursor = 'row-resize';
             e.preventDefault();
+            e.stopPropagation();
             
-            startY = e.clientY;
-            startHeight = responsePanel.offsetHeight;
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
-            
-            const deltaY = startY - e.clientY;
-            const newHeight = startHeight + deltaY;
-            
-            if (newHeight >= 100 && newHeight <= window.innerHeight - 150) {
-                responsePanel.style.height = `${newHeight}px`;
-                consolePanel.style.height = `${window.innerHeight - 150 - newHeight}px`;
-            }
-        });
-        
-        document.addEventListener('mouseup', () => {
-            if (isResizing) {
-                isResizing = false;
-                document.body.style.cursor = '';
-            }
+            resizeState.startY = e.clientY;
+            resizeState.startHeight = responsePanel.offsetHeight;
         });
     }
     
@@ -489,35 +456,64 @@ function setupResizeHandles() {
     const responseData = document.getElementById('responseData');
     
     if (responseResizeHandle && responseStatus && responseData) {
-        let isResizing = false;
-        
         responseResizeHandle.addEventListener('mousedown', (e) => {
-            isResizing = true;
+            resizeState.active = 'response';
+            resizeState.handleType = 'response';
+            resizeState.container = responseStatus;
+            resizeState.isDragging = true;
             document.body.style.cursor = 'row-resize';
             e.preventDefault();
-        });
-        
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing) return;
+            e.stopPropagation();
             
-            const rect = responseStatus.getBoundingClientRect();
-            const newHeight = e.clientY - rect.bottom;
-            
-            if (newHeight >= 20 && newHeight <= 300) {
-                responseStatus.style.height = `${newHeight}px`;
-                responseData.style.height = `${300 - newHeight}px`;
-            }
-        });
-        
-        document.addEventListener('mouseup', () => {
-            if (isResizing) {
-                isResizing = false;
-                document.body.style.cursor = '';
-            }
+            resizeState.startY = e.clientY;
+            resizeState.startHeight = responseStatus.offsetHeight;
         });
     }
+    
+    // Global mousemove handler
+    document.addEventListener('mousemove', (e) => {
+        if (!resizeState.active || !resizeState.isDragging) return;
+        
+        const deltaY = e.clientY - resizeState.startY;
+        let newHeight = resizeState.startHeight + deltaY;
+        
+        // Apply minimum and maximum constraints based on handle type
+        if (resizeState.handleType === 'editor') {
+            const minHeight = 200;
+            const maxHeight = window.innerHeight - 250;
+            newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+            resizeState.container.style.height = `${newHeight}px`;
+        } else if (resizeState.handleType === 'list') {
+            const minHeight = 100;
+            const consoleMinHeight = 100;
+            const totalAvailable = window.innerHeight - 150;
+            newHeight = Math.max(minHeight, Math.min(totalAvailable - consoleMinHeight, newHeight));
+            resizeState.container.style.height = `${newHeight}px`;
+            consolePanel.style.height = `${totalAvailable - newHeight}px`;
+        } else if (resizeState.handleType === 'response') {
+            const minHeight = 20;
+            const maxHeight = 300;
+            newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+            resizeState.container.style.height = `${newHeight}px`;
+            responseData.style.height = `${300 - newHeight}px`;
+        }
+    });
+    
+    // Global mouseup handler
+    document.addEventListener('mouseup', () => {
+        if (resizeState.active) {
+            resizeState.active = null;
+            resizeState.handleType = null;
+            resizeState.container = null;
+            resizeState.isDragging = false;
+            document.body.style.cursor = '';
+        }
+    });
 }
 
+// ============================================
+// Collapse/Expand Setup
+// ============================================
 function setupCollapseExpand() {
     // Collapse/Expand Response Panel
     const collapseResponseBtn = document.getElementById('collapseResponseBtn');
@@ -525,13 +521,15 @@ function setupCollapseExpand() {
     const responsePanel = document.getElementById('responsePanel');
     
     if (collapseResponseBtn && expandResponseBtn && responsePanel) {
-        collapseResponseBtn.addEventListener('click', () => {
+        collapseResponseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             responsePanel.classList.add('collapsed');
             collapseResponseBtn.classList.add('hidden');
             expandResponseBtn.classList.remove('hidden');
         });
         
-        expandResponseBtn.addEventListener('click', () => {
+        expandResponseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             responsePanel.classList.remove('collapsed');
             collapseResponseBtn.classList.remove('hidden');
             expandResponseBtn.classList.add('hidden');
@@ -544,13 +542,15 @@ function setupCollapseExpand() {
     const consolePanel = document.getElementById('consolePanel');
     
     if (collapseConsoleBtn && expandConsoleBtn && consolePanel) {
-        collapseConsoleBtn.addEventListener('click', () => {
+        collapseConsoleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             consolePanel.classList.add('collapsed');
             collapseConsoleBtn.classList.add('hidden');
             expandConsoleBtn.classList.remove('hidden');
         });
         
-        expandConsoleBtn.addEventListener('click', () => {
+        expandConsoleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             consolePanel.classList.remove('collapsed');
             collapseConsoleBtn.classList.remove('hidden');
             expandConsoleBtn.classList.add('hidden');

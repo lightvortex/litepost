@@ -79,8 +79,6 @@
             <div class="flex-1 overflow-hidden flex flex-col">
                 <!-- Editor Tabs -->
                 <div class="flex-1 overflow-y-auto" id="editorContainer">
-                    <!-- Resize Handle between editor and response list -->
-                    <div class="h-1 cursor-col-resize bg-gray-700 hover:bg-gray-600" id="editorResizeHandle"></div>
                     <!-- Editor Tab -->
                     <div id="editorTab" class="p-4">
                         <div class="grid grid-cols-2 gap-4">
@@ -123,6 +121,9 @@
                     </div>
                 </div>
                 
+                <!-- Resize Handle between editor and response list -->
+                <div class="w-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="editorResizeHandle"></div>
+                
                 <!-- Response and Console List View -->
                 <div class="flex-1 flex flex-col overflow-hidden" id="responseListView">
                     <!-- Response Panel -->
@@ -143,7 +144,7 @@
                             </div>
                         </div>
                         <div class="flex-1 overflow-hidden p-2">
-                            <div class="flex h-full">
+                            <div class="flex h-full" id="responsePanelInner">
                                 <div class="w-40 border-r border-gray-700 p-2 flex flex-col">
                                     <div id="responseStatus" class="text-xs mb-2 font-mono"></div>
                                 </div>
@@ -151,9 +152,9 @@
                                     <pre id="responseData" class="bg-gray-900 rounded p-2 text-xs overflow-auto text-green-400 h-full"></pre>
                                 </div>
                             </div>
+                            <!-- Resize Handle within Response Panel (between status and data) -->
+                            <div class="h-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="responseResizeHandle"></div>
                         </div>
-                        <!-- Resize Handle for Response Panel -->
-                        <div class="h-1 cursor-row-resize bg-gray-700 hover:bg-gray-600" id="responseResizeHandle"></div>
                     </div>
                     
                     <!-- Resize Handle between Response and Console -->

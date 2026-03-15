@@ -4,3 +4,6 @@ data.db-shm
 data.db-wal
 *.log
 .DS_Store
+.roo/mcp.json
+.roomodes
+data.db-shm
